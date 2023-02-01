@@ -1,3 +1,6 @@
+package com.project.majorproject;
+
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

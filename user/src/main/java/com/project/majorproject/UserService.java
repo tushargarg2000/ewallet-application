@@ -1,6 +1,10 @@
+package com.project.majorproject;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.majorproject.UserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -10,7 +14,7 @@ import java.util.Map;
 public class UserService
 {
     @Autowired
-    RedisTemplate<String,User> redisTemplate;
+    RedisTemplate<String, User> redisTemplate;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -18,15 +22,24 @@ public class UserService
     @Autowired
     UserRepository userRepository;
 
+
+    @Autowired
+    KafkaTemplate<String,String> kafkaTemplate;
+
     String addUser(UserRequest userRequest)
     {
         //
         User user = User.builder().userName(userRequest.getUserName()).age(userRequest.getAge()).mobNo(userRequest.getMobNo()).build();
 
+
         //Save it to the db
         userRepository.save(user);
         //Save it in the cache
         saveInCache(user);
+
+        kafkaTemplate.send("wallet_create",userRequest.getUserName(),userRequest.getUserName());
+
+
         return "User Added successfully";
 
     }
@@ -34,9 +47,11 @@ public class UserService
     public void saveInCache(User user){
 
         Map map = objectMapper.convertValue(user,Map.class);
-        redisTemplate.opsForHash().putAll(user.getUserName(),map);
-        redisTemplate.expire(user.getUserName(), Duration.ofHours(12));
 
+        String key = "User"+user.getUserName();
+        System.out.println("The user key is "+key);
+        redisTemplate.opsForHash().putAll(key,map);
+        redisTemplate.expire(key, Duration.ofHours(12));
     }
 
     public User findUserByUserName(String userName){
@@ -56,7 +71,7 @@ public class UserService
             return user;
         }else{
             //We found out the User object
-            user = objectMapper.convertValue(map,User.class);
+            user = objectMapper.convertValue(map, User.class);
             return user;
 
         }
