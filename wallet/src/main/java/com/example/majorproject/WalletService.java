@@ -36,36 +36,43 @@ public class WalletService {
     public void updateWallet(String message) throws JsonProcessingException {
 
         //decoded back to JSonObject and extract information
-        JSONObject jsonObject = objectMapper.convertValue(message,JSONObject.class);
+        JSONObject jsonObject = objectMapper.readValue(message,JSONObject.class);
 
         String fromUser = (String)jsonObject.get("fromUser");
         String toUser = (String)jsonObject.get("toUser");
         int transactionAmount = (Integer)jsonObject.get("amount");
         String transactionId = (String)jsonObject.get("transactionId");
 
+        System.out.println(fromUser+" -- "+toUser+"-- "+transactionAmount+" -- "+transactionId);
 
         JSONObject returnObject = new JSONObject();
 
         returnObject.put("transactionId",transactionId);
 
-        Wallet fromUserWallet = walletRepository.getWalletByUserName(fromUser);
+        Wallet fromUserWallet = walletRepository.findWalletByUserName(fromUser);
 
-        Wallet receiverWallet = walletRepository.getWalletByUserName(toUser);
+        Wallet receiverWallet = walletRepository.findWalletByUserName(toUser);
 
         if(fromUserWallet.getBalance()>=transactionAmount){
 
             //That is a succesfull transaction
-            returnObject.put("status","SUCESS");
+            returnObject.put("status","SUCCESS");
 
             kafkaTemplate.send("update_transaction",objectMapper.writeValueAsString(returnObject));
 
 
             //Update the sender and receiver's wallet
             //Write it as h.w
+            Wallet fromWallet = walletRepository.findWalletByUserName(fromUser);
+            fromWallet.setBalance(fromWallet.getBalance() - transactionAmount);
+            walletRepository.save(fromWallet);
+
+            Wallet toWallet = walletRepository.findWalletByUserName(toUser);
+            toWallet.setBalance(toWallet.getBalance() + transactionAmount);
+            walletRepository.save(toWallet);
 
 
         }else{
-
             returnObject.put("status","FAILED");
             kafkaTemplate.send("update_transaction",objectMapper.writeValueAsString(returnObject));
 
