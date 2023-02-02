@@ -37,7 +37,10 @@ public class UserService
         //Save it in the cache
         saveInCache(user);
 
-        kafkaTemplate.send("wallet_create",userRequest.getUserName(),userRequest.getUserName());
+
+        //Send an update to the wallet module/ wallet service ---> that create a new wallet from the userName sent as a string.
+        kafkaTemplate.send("create_wallet",user.getUserName());
+
 
 
         return "User Added successfully";
@@ -48,7 +51,7 @@ public class UserService
 
         Map map = objectMapper.convertValue(user,Map.class);
 
-        String key = "User"+user.getUserName();
+        String key = "USER_KEY"+user.getUserName();
         System.out.println("The user key is "+key);
         redisTemplate.opsForHash().putAll(key,map);
         redisTemplate.expire(key, Duration.ofHours(12));

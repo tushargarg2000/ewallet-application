@@ -6,7 +6,8 @@
 	<modules>
 		<module>wallet</module>
 		<module>user</module>
-	</modules>
+        <module>transaction</module>
+    </modules>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
