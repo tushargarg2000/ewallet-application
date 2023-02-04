@@ -91,20 +91,62 @@ public class TransactionService {
         String fromUserName  = transaction.getFromUser();
         String toUserName = transaction.getToUser();
 
+        String transactionId = transaction.getTransactionId();
 
-        //We need to create that REST API and call User-service
 
         URI url = URI.create("http://localhost:9999/user/findEmailDto/"+fromUserName);
-
         HttpEntity httpEntity = new HttpEntity(new HttpHeaders());
 
+        JSONObject fromUserObject = restTemplate.exchange(url, HttpMethod.GET,httpEntity,JSONObject.class).getBody();
 
-        ResponseEntity<JSONObject> fromUserJsonObject = restTemplate.exchange(url, HttpMethod.GET,httpEntity,JSONObject.class);
+        String senderName = (String)fromUserObject.get("name");
+
+        String senderEmail = (String)fromUserObject.get("email");
+
+        url = URI.create("http://localhost:9999/user/findEmailDto/"+toUserName);
+        JSONObject toUserObject = restTemplate.exchange(url, HttpMethod.GET,httpEntity,JSONObject.class).getBody();
+
+        String receiverEmail = (String)toUserObject.get("email");
+        String receiverName = (String)toUserObject.get("name");
 
 
+        //SEND THE EMAIL AND MESSAGE TO NOTIFICATIONS-SERVICE VIA KAFKA
 
-        URI url1 = URI.create("http://localhost:9999/user/findEmailDto/"+toUserName);
-        ResponseEntity<JSONObject> toUserObject = restTemplate.exchange(url1, HttpMethod.GET,httpEntity,JSONObject.class);
+        JSONObject emailRequest = new JSONObject();
+
+        System.out.println("We are in transaction Service Layer"+senderName+" "+senderEmail+" "+receiverName+" "+receiverEmail);
+
+        //SENDER should always receive email ----> AMIT KUMAR
+
+        emailRequest.put("email",senderEmail);
+
+        String SenderMessageBody = String.format("Hi %s the transcation with transactionId %s has been %s of Rs %d",
+                senderName,transactionId,transaction.getTransactionStatus(),transaction.getAmount());
+
+        emailRequest.put("message",SenderMessageBody);
+
+        String message = emailRequest.toString();
+
+        //SEND IT TO KAFKA
+        kafkaTemplate.send("send_email",message);
+
+
+        if(transaction.getTransactionStatus().equals("FAILED")){
+            return;
+        }
+
+        //SEND an email to the reciever also ---> GOVIND BHATT
+        emailRequest.put("email",receiverEmail);
+
+        String receiverMessageBody = String.format("Hi %s you have recived money %d from %s",
+                receiverName,transaction.getAmount(),senderName);
+
+
+        emailRequest.put("message",receiverMessageBody);
+
+        message = emailRequest.toString();
+
+        kafkaTemplate.send("send_email",message);
 
 
 

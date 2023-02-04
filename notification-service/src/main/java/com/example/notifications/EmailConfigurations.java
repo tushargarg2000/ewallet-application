@@ -57,30 +57,30 @@ public class EmailConfigurations {
     }
 
 
-    @Bean
-    SimpleMailMessage getSimpleMailMessage(){
-        return new SimpleMailMessage();
-    }
+//    @Bean
+//    SimpleMailMessage getSimpleMailMessage(){
+//        return new SimpleMailMessage();
+//    }
 
-    @Bean
-    JavaMailSender getJavaMailSender(){
-
-        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-
-        javaMailSender.setHost("smtp.gmail.com");
-        javaMailSender.setPort(587);
-
-        javaMailSender.setUsername("backendacciojob@gmail.com");
-        javaMailSender.setPassword("Accio1234.");
-
-        Properties properties = javaMailSender.getJavaMailProperties();
-
-        properties.put("mail.transport.protocol","smtp");
-        properties.put("mail.smtp.auth","true");
-        properties.put("mail.smtp.stattls.enable","true");
-        properties.put("mail.debug","true");
-
-        return javaMailSender;
-    }
+//    @Bean
+//    JavaMailSender getJavaMailSender(){
+//
+//        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+//
+//        javaMailSender.setHost("smtp.gmail.com");
+//        javaMailSender.setPort(587);
+//
+//        javaMailSender.setUsername("backendacciojob@gmail.com");
+//        javaMailSender.setPassword("Accio1234.");
+//
+//        Properties properties = javaMailSender.getJavaMailProperties();
+//
+//        properties.put("mail.transport.protocol","smtp");
+//        properties.put("mail.smtp.auth","true");
+//        properties.put("mail.smtp.stattls.enable","true");
+//        properties.put("mail.debug","true");
+//
+//        return javaMailSender;
+//    }
 
 }
