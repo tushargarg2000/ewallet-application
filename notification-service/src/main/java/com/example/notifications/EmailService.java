@@ -45,15 +45,6 @@ public class EmailService {
         String messageBody = (String)emailRequest.get("message");
 
         System.out.println("We are in the notification service"+email+" -- "+messageBody);
-//
-//        simpleMailMessage.setTo(email);
-//        simpleMailMessage.setText(messageBody);
-//
-//        simpleMailMessage.setSubject("Transaction Mail");
-//
-//        simpleMailMessage.setFrom("backendacciojob@gmail.com");
-//
-//        javaMailSender.send(simpleMailMessage);
 
         MimeMessage mimeMessage=javaMailSender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper=new MimeMessageHelper(mimeMessage,true);
@@ -61,11 +52,7 @@ public class EmailService {
         mimeMessageHelper.setTo(email);
         mimeMessageHelper.setText(messageBody);
         mimeMessageHelper.setSubject("Hi");
-//
-//        FileSystemResource fileSystemResource=
-//                new FileSystemResource(new File(attachment));
-//        mimeMessageHelper.addAttachment(fileSystemResource.getFilename(),
-//                fileSystemResource);
+
         javaMailSender.send(mimeMessage);
         System.out.printf("Mail with attachment sent successfully..");
 

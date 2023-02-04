@@ -120,7 +120,10 @@ public class TransactionService {
 
         emailRequest.put("email",senderEmail);
 
-        String SenderMessageBody = String.format("Hi %s the transcation with transactionId %s has been %s of Rs %d",
+        String SenderMessageBody = String.format("Hi %s \n" +
+                        "The transcation with transactionId %s has been %s of Rs %d . ",
+
+
                 senderName,transactionId,transaction.getTransactionStatus(),transaction.getAmount());
 
         emailRequest.put("message",SenderMessageBody);
