@@ -21,11 +21,16 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    private String name;
+
     @Column(unique = true)
     private String userName;
 
     private int age;
 
     private String mobNo;
+
+    private String email;
+
 
 }

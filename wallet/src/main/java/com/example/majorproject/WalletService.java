@@ -63,16 +63,17 @@ public class WalletService {
 
             //Update the sender and receiver's wallet
             //Write it as h.w
-            Wallet fromWallet = walletRepository.findWalletByUserName(fromUser);
-            fromWallet.setBalance(fromWallet.getBalance() - transactionAmount);
-            walletRepository.save(fromWallet);
 
-            Wallet toWallet = walletRepository.findWalletByUserName(toUser);
-            toWallet.setBalance(toWallet.getBalance() + transactionAmount);
-            walletRepository.save(toWallet);
+            fromUserWallet.setBalance(fromUserWallet.getBalance() - transactionAmount);
+            walletRepository.save(fromUserWallet);
+
+            receiverWallet.setBalance(receiverWallet.getBalance() + transactionAmount);
+            walletRepository.save(receiverWallet);
 
 
         }else{
+
+            //INSUFFICIENT BALANCE --->
             returnObject.put("status","FAILED");
             kafkaTemplate.send("update_transaction",objectMapper.writeValueAsString(returnObject));
 

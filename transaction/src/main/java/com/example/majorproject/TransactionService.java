@@ -5,10 +5,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
 
@@ -23,6 +29,9 @@ public class TransactionService {
 
     @Autowired
     KafkaTemplate<String,String> kafkaTemplate;
+
+    @Autowired
+    RestTemplate restTemplate;
 
     public void createTransaction(TransactionRequest transactionRequest) throws JsonProcessingException {
 
@@ -71,7 +80,40 @@ public class TransactionService {
         transactionRepository.save(t);
 
         // CALL NOTIFICATION SERVICE AND SEND EMAILS
-        //callNotificationService(t);
+        callNotificationService(t);
+
+    }
+
+    public void callNotificationService(Transaction transaction){
+
+
+
+        String fromUserName  = transaction.getFromUser();
+        String toUserName = transaction.getToUser();
+
+
+        //We need to create that REST API and call User-service
+
+        URI url = URI.create("http://localhost:9999/user/findEmailDto/"+fromUserName);
+
+        HttpEntity httpEntity = new HttpEntity(new HttpHeaders());
+
+
+        ResponseEntity<JSONObject> fromUserJsonObject = restTemplate.exchange(url, HttpMethod.GET,httpEntity,JSONObject.class);
+
+
+
+        URI url1 = URI.create("http://localhost:9999/user/findEmailDto/"+toUserName);
+        ResponseEntity<JSONObject> toUserObject = restTemplate.exchange(url1, HttpMethod.GET,httpEntity,JSONObject.class);
+
+
+
+
+
+
+
+
+
     }
 
 }

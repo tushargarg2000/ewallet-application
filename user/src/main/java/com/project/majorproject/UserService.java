@@ -29,7 +29,8 @@ public class UserService
     String addUser(UserRequest userRequest)
     {
         //
-        User user = User.builder().userName(userRequest.getUserName()).age(userRequest.getAge()).mobNo(userRequest.getMobNo()).build();
+        User user = User.builder().userName(userRequest.getUserName()).age(userRequest.getAge()).mobNo(userRequest.getMobNo())
+                .email(userRequest.getEmail()).name(userRequest.getName()).build();
 
 
         //Save it to the db
@@ -78,6 +79,17 @@ public class UserService
             return user;
 
         }
+    }
+
+    public UserResponseDto findEmailAndNameDto(String userName){
+
+        //H.W try changing the code : and integrate this part with redis
+
+        User user = userRepository.findByUserName(userName);
+
+        UserResponseDto userResponseDto = UserResponseDto.builder().email(user.getEmail()).name(user.getName()).build();
+
+        return userResponseDto;
     }
 
 
